@@ -5,11 +5,13 @@ import requests
 import smtplib
 
 
-env_path=os.path.join('secrets.env')
+env_path = os.path.join('secrets.env')
 load_dotenv(env_path)
-EMAIL_SENDER=os.getenv("EMAIL_SENDER")
-PASSWORD_EMAIL_SENDER=os.getenv("PASSWORD_EMAIL_SENDER")
-EMAIL_RECIEVER=os.getenv("EMAIL_RECIEVER")
+EMAIL_SENDER = os.getenv("EMAIL_SENDER")
+PASSWORD_EMAIL_SENDER = os.getenv("PASSWORD_EMAIL_SENDER")
+EMAIL_RECIEVER = os.getenv("EMAIL_RECIEVER")
+SITE_DATA = os.getenv("SITE_DATA")
+PAGE_ID_SITE_DATA = os.getenv("PAGE_ID_SITE_DATA")
 
 def finder_text(content, flag, board):
     find_id_position = content.find(flag) + len(flag)
@@ -26,7 +28,7 @@ def finder_text(content, flag, board):
 def get_hub_data():
     json_data = {
         'page': {
-            'id': '2fc84a23-30f1-4d71-8dc7-120ea2e18981',
+            'id': PAGE_ID_SITE_DATA,
         },
         'limit': 100,
         'chunkNumber': 0,
@@ -34,7 +36,7 @@ def get_hub_data():
     }
 
     try:
-        response = requests.post('https://ninth-account-04f.notion.site/api/v3/loadCachedPageChunk', json=json_data)
+        response = requests.post(SITE_DATA, json=json_data)
     except Exception as e:
         print('Fail get data from Notion')
     finally:
