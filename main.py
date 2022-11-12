@@ -5,7 +5,7 @@ import requests
 import smtplib
 
 
-env_path=os.path.join('.env')
+env_path=os.path.join('secrets.env')
 load_dotenv(env_path)
 EMAIL_SENDER=os.getenv("EMAIL_SENDER")
 PASSWORD_EMAIL_SENDER=os.getenv("PASSWORD_EMAIL_SENDER")
