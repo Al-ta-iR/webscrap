@@ -8,13 +8,18 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  schedule:
+  - cron: "0 0,3,6,9,12,15,18,21 * * *"
 
 permissions:
   contents: read
 
 jobs:
   build:
-
+    
+    - run: echo $SECRETS_FILE_CONTENT | base64 -d > /.env
+    env:
+      SECRETS_FILE_CONTENT: ${{ secrets.SECRETS_FILE_CONTENT }}
     runs-on: ubuntu-latest
 
     steps:
