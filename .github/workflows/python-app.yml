@@ -16,11 +16,10 @@ permissions:
 
 jobs:
   build:
-    
-    - run: echo $SECRETS_FILE_CONTENT | base64 -d > /.env
+    runs-on: ubuntu-latest
+    - run: echo $SECRETS_FILE_CONTENT | base64 -d > '/.env'
     env:
       SECRETS_FILE_CONTENT: ${{ secrets.SECRETS_FILE_CONTENT }}
-    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
