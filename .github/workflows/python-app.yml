@@ -16,11 +16,7 @@ permissions:
 
 jobs:
   build:
-    
-    env:
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      SLACK_ICON: ${{ secrets.SECRETS_FILE_CONTENT }}
-      SLACK_ICON: ${{ secrets.SECRETS_FILE_CONTENT }}
+
     runs-on: ubuntu-latest
 
     steps:
