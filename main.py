@@ -41,12 +41,12 @@ def get_hub_data():
         'verticalColumns': False,
     }
 
-    try:
-        response = requests.post(SITE_DATA, json=json_data)
-    except Exception as e:
-        print('Fail get data from Notion')
-    finally:
-        pass
+    # try:
+    response = requests.post(SITE_DATA, json=json_data)
+    # except Exception as e:
+    #     print('Fail get data from Notion')
+    # finally:
+    #     pass
 
     all_data = str(response.text)
     value_flag = 'w[J":[["'
