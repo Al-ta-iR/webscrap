@@ -17,7 +17,8 @@ EMAIL_SENDER = os.getenv("EMAIL_SENDER")
 PASSWORD_EMAIL_SENDER = os.getenv("PASSWORD_EMAIL_SENDER")
 EMAIL_RECIEVER = os.getenv("EMAIL_RECIEVER")
 SITE_DATA = os.getenv("SITE_DATA")
-PAGE_ID_SITE_DATA = os.getenv("PAGE_ID_SITE_DATA")  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▲
+PAGE_ID_SITE_DATA = os.getenv("PAGE_ID_SITE_DATA_MANUAL")  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▲ + MANUAL EXE
+# PAGE_ID_SITE_DATA = os.getenv("PAGE_ID_SITE_DATA")  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▲
 
 email_flag = 0
 
@@ -105,9 +106,15 @@ def send_mail(
 
 def message_router(allert, change_counter):
     print(f'[{dt.datetime.now().strftime("%d.%m.%Y %H:%M")}] • {change_counter} изменений(-я,-е):\n{allert}') # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄
-    # send_mail(f'Changes on monitored sites: {change_counter}', allert)
+    global email_flag  # manual
+    if email_flag != 0:  # manual
+        send_mail(f'Changes on monitored sites: {change_counter}', allert)
 
 
 if __name__ == "__main__":
-    urls_data = get_hub_data()
-    check_data(urls_data)
+    while 1:  # manual ▼
+        email_flag_enter = input(f"Запусти проверку 'Enter'(email ► любой символ): ")
+        if email_flag_enter != '':
+            email_flag = email_flag_enter
+        urls_data = get_hub_data()
+        check_data(urls_data)
