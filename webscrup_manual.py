@@ -116,5 +116,5 @@ if __name__ == "__main__":
         email_flag_enter = input(f"Запусти проверку 'Enter'(email ► любой символ): ")
         if email_flag_enter != '':
             email_flag = email_flag_enter
-        urls_data = get_hub_data()
-        check_data(urls_data)
+            urls_data = get_hub_data()
+            check_data(urls_data)
