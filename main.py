@@ -5,19 +5,19 @@ import requests
 import smtplib
 
 
-# EMAIL_SENDER = os.environ.get('EMAIL_SENDER')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▼
-# PASSWORD_EMAIL_SENDER = os.environ.get('PASSWORD_EMAIL_SENDER')
-# EMAIL_RECIEVER = os.environ.get('EMAIL_RECIEVER')
-# SITE_DATA = os.environ.get('SITE_DATA')
-# PAGE_ID_SITE_DATA = os.environ.get('PAGE_ID_SITE_DATA')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▲
+EMAIL_SENDER = os.environ.get('EMAIL_SENDER')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▼
+PASSWORD_EMAIL_SENDER = os.environ.get('PASSWORD_EMAIL_SENDER')
+EMAIL_RECIEVER = os.environ.get('EMAIL_RECIEVER')
+SITE_DATA = os.environ.get('SITE_DATA')
+PAGE_ID_SITE_DATA = os.environ.get('PAGE_ID_SITE_DATA')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▲
 
-env_path = os.path.join('secrets.env')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▼
-load_dotenv(env_path)
-EMAIL_SENDER = os.getenv("EMAIL_SENDER")
-PASSWORD_EMAIL_SENDER = os.getenv("PASSWORD_EMAIL_SENDER")
-EMAIL_RECIEVER = os.getenv("EMAIL_RECIEVER")
-SITE_DATA = os.getenv("SITE_DATA")
-PAGE_ID_SITE_DATA = os.getenv("PAGE_ID_SITE_DATA")  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▲
+# env_path = os.path.join('secrets.env')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▼
+# load_dotenv(env_path)
+# EMAIL_SENDER = os.getenv("EMAIL_SENDER")
+# PASSWORD_EMAIL_SENDER = os.getenv("PASSWORD_EMAIL_SENDER")
+# EMAIL_RECIEVER = os.getenv("EMAIL_RECIEVER")
+# SITE_DATA = os.getenv("SITE_DATA")
+# PAGE_ID_SITE_DATA = os.getenv("PAGE_ID_SITE_DATA")  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▲
 
 email_flag = 0
 
