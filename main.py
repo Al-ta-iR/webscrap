@@ -105,7 +105,7 @@ def send_mail(
 
 def message_router(allert, change_counter):
     print(f'[{dt.datetime.now().strftime("%d.%m.%Y %H:%M")}] • {change_counter} изменений(-я,-е):\n{allert}') # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄
-    # send_mail(f'Changes on monitored sites: {change_counter}', allert)
+    send_mail(f'Changes on monitored sites: {change_counter}', allert)
 
 
 if __name__ == "__main__":
