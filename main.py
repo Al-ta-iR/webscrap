@@ -1,17 +1,18 @@
-from dotenv import load_dotenv # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄
+# from dotenv import load_dotenv  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ local
 import os
 import datetime as dt
 import requests
 import smtplib
+import re
 
 
-EMAIL_SENDER = os.environ.get('EMAIL_SENDER')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▼
+EMAIL_SENDER = os.environ.get('EMAIL_SENDER')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ online ▼
 PASSWORD_EMAIL_SENDER = os.environ.get('PASSWORD_EMAIL_SENDER')
 EMAIL_RECIEVER = os.environ.get('EMAIL_RECIEVER')
 SITE_DATA = os.environ.get('SITE_DATA')
 PAGE_ID_SITE_DATA = os.environ.get('PAGE_ID_SITE_DATA')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▲
 
-# env_path = os.path.join('secrets.env')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▼
+# env_path = os.path.join('secrets.env')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ local ▼
 # load_dotenv(env_path)
 # EMAIL_SENDER = os.getenv("EMAIL_SENDER")
 # PASSWORD_EMAIL_SENDER = os.getenv("PASSWORD_EMAIL_SENDER")
@@ -22,16 +23,10 @@ PAGE_ID_SITE_DATA = os.environ.get('PAGE_ID_SITE_DATA')  # ◄◄◄◄◄◄◄
 email_flag = 0
 
 def finder_text(content, flag, board):
-    find_id_position = content.find(flag) + len(flag)
-    text = ""
-    for symbol in content[find_id_position:]:
-        if symbol != board:
-            text += symbol
-        else:
-            break
-    end_position = find_id_position + len(text)
-    return text, end_position
-
+    left_id_position = content.find(flag) + len(flag)
+    right_id_position = content[left_id_position : ].find(board) + left_id_position
+    text = content[left_id_position : right_id_position]
+    return text, right_id_position
 
 def get_hub_data():
     json_data = {
@@ -57,7 +52,7 @@ def get_hub_data():
     all_urls_data = []
     while 'https://' in all_data:
         value, end_position = finder_text(all_data, value_flag, '"')
-        all_urls_data.append(value)
+        all_urls_data.append(value.replace('\\\\', '\\'))
 
         url, end_position = finder_text(all_data, '"a","', '"')
         all_urls_data.append(url)
@@ -73,19 +68,24 @@ def check_data(urls_data):
     
     allert = ''
     change_counter = 0
-    for i in range(0, len(urls_data)-1, 2):
+    for i in range(0, len(urls_data), 2):
         response = requests.get(urls_data[i+1], headers=headers)
         status_code = response.status_code
         if status_code != 200:
             allert = allert + f'{status_code}: {urls_data[i+1]}\n------------\n'
             continue
         current_site_data = str(response.text)
-        if urls_data[i] not in current_site_data:
-            change_counter += 1
-            allert = allert + f'{change_counter}. "{urls_data[i+1]}" \n'
+        if urls_data[i][0] != '►':
+            if not bool(re.search(urls_data[i], current_site_data)):
+                change_counter += 1
+                allert = allert + f'{change_counter}. "{urls_data[i+1]}" \n'
+        else:
+            if bool(re.search(urls_data[i][1:], current_site_data)):
+                change_counter += 1
+                allert = allert + f'{change_counter}. "{urls_data[i+1]}" \n'
+
     if allert != '':
         message_router(allert, change_counter)
-
 
 def send_mail(
     subject,
@@ -104,7 +104,7 @@ def send_mail(
 
 
 def message_router(allert, change_counter):
-    print(f'[{dt.datetime.now().strftime("%d.%m.%Y %H:%M")}] • {change_counter} изменений(-я,-е):\n{allert}') # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄
+    # print(f'[{dt.datetime.now().strftime("%d.%m.%Y %H:%M")}] • {change_counter} изменений(-я,-е):\n{allert}') # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄
     send_mail(f'Changes on monitored sites: {change_counter}', allert)
 
 
