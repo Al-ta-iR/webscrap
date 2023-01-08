@@ -28,6 +28,7 @@ def finder_text(content, flag, board):
     text = content[left_id_position : right_id_position]
     return text, right_id_position
 
+
 def get_hub_data():
     json_data = {
         'page': {
@@ -86,6 +87,7 @@ def check_data(urls_data):
 
     if allert != '':
         message_router(allert, change_counter)
+
 
 def send_mail(
     subject,
