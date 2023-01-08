@@ -14,11 +14,11 @@ PAGE_ID_SITE_DATA = os.environ.get('PAGE_ID_SITE_DATA')  # ◄◄◄◄◄◄◄
 
 # env_path = os.path.join('secrets.env')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ local ▼
 # load_dotenv(env_path)
-# EMAIL_SENDER = os.getenv("EMAIL_SENDER")
-# PASSWORD_EMAIL_SENDER = os.getenv("PASSWORD_EMAIL_SENDER")
-# EMAIL_RECIEVER = os.getenv("EMAIL_RECIEVER")
-# SITE_DATA = os.getenv("SITE_DATA")
-# PAGE_ID_SITE_DATA = os.getenv("PAGE_ID_SITE_DATA")  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▲
+# EMAIL_SENDER = os.getenv('EMAIL_SENDER')
+# PASSWORD_EMAIL_SENDER = os.getenv('PASSWORD_EMAIL_SENDER')
+# EMAIL_RECIEVER = os.getenv('EMAIL_RECIEVER')
+# SITE_DATA = os.getenv('SITE_DATA')
+# PAGE_ID_SITE_DATA = os.getenv('PAGE_ID_SITE_DATA')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▲
 
 email_flag = 0
 
@@ -79,11 +79,11 @@ def check_data(urls_data):
         if urls_data[i][0] != '►':
             if not bool(re.search(urls_data[i], current_site_data)):
                 change_counter += 1
-                allert = allert + f'{change_counter}. "{urls_data[i+1]}" \n'
+                allert = allert + f'{change_counter}. [{urls_data[i+1]}] \n'
         else:
             if bool(re.search(urls_data[i][1:], current_site_data)):
                 change_counter += 1
-                allert = allert + f'{change_counter}. "{urls_data[i+1]}" \n'
+                allert = allert + f'{change_counter}. [{urls_data[i+1]}] \n'
 
     if allert != '':
         message_router(allert, change_counter)
@@ -94,8 +94,8 @@ def send_mail(
     text
 ):
     try:
-        message = "Subject: {}\n\n{}".format(subject, f'{text}')
-        server = smtplib.SMTP_SSL("mail.inbox.lv", 465)
+        message = 'Subject: {}\n\n{}'.format(subject, f'{text}')
+        server = smtplib.SMTP_SSL('mail.inbox.lv', 465)
         server.login(EMAIL_SENDER, PASSWORD_EMAIL_SENDER)
         server.sendmail(EMAIL_SENDER, EMAIL_RECIEVER, message)
         server.quit()
@@ -106,10 +106,10 @@ def send_mail(
 
 
 def message_router(allert, change_counter):
-    # print(f'[{dt.datetime.now().strftime("%d.%m.%Y %H:%M")}] • {change_counter} изменений(-я,-е):\n{allert}') # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄
+    # print(f'[{dt.datetime.now().strftime('%d.%m.%Y %H:%M')}] • {change_counter} изменений(-я,-е):\n{allert}') # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄
     send_mail(f'Changes on monitored sites: {change_counter}', allert)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     urls_data = get_hub_data()
     check_data(urls_data)
