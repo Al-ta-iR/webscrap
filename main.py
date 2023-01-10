@@ -49,7 +49,7 @@ def get_hub_data():
     all_data = str(response.text)
     value_flag = 'w[J":[["'
     find_id_position = all_data.find(value_flag) + len(value_flag)
-    all_data = all_data[find_id_position + 1:]
+    all_data = all_data[find_id_position:]
     all_urls_data = []
     while 'https://' in all_data:
         value, end_position = finder_text(all_data, value_flag, '"')
