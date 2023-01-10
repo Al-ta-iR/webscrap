@@ -79,7 +79,7 @@ def check_data(urls_data):
         if urls_data[i][0] != '►':
             if not bool(re.search(urls_data[i], current_site_data)):
                 change_counter += 1
-                allert = allert + f'{change_counter}. [{urls_data[i+1]}] \n'
+                allert = allert + f'{change_counter}. {urls_data[i+1]} \n'
         else:
             if bool(re.search(urls_data[i][1:], current_site_data)):
                 change_counter += 1
