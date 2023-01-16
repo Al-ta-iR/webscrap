@@ -76,7 +76,7 @@ def check_data(urls_data):
             allert = allert + f'{status_code}: {urls_data[i+1]}\n------------\n'
             continue
         current_site_data = str(response.text)
-        if urls_data[i][0] != '►':
+        if urls_data[i][0] != '►' and urls_data[i][0] != '►':
             if not bool(re.search(urls_data[i], current_site_data)):
                 change_counter += 1
                 allert = allert + f'{change_counter}. {urls_data[i+1]} \n'
