@@ -72,11 +72,11 @@ def check_data(urls_data):
     for i in range(0, len(urls_data), 2):
         response = requests.get(urls_data[i+1], headers=headers)
         status_code = response.status_code
-        if status_code != 200:
+        if status_code != 200 and urls_data[i][0] != '►':
             allert = allert + f'{status_code}: {urls_data[i+1]}\n------------\n'
             continue
         current_site_data = str(response.text)
-        if urls_data[i][0] != '►' and urls_data[i][0] != '►':
+        if urls_data[i][0] != '►':
             if not bool(re.search(urls_data[i], current_site_data)):
                 change_counter += 1
                 allert = allert + f'{change_counter}. {urls_data[i+1]} \n'
