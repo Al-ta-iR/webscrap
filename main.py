@@ -85,18 +85,20 @@ def check_data(urls_data):
         response = requests.get(urls_data[i+1], headers=headers)
         status_code = response.status_code
         if status_code != 200:
-            allert = allert + f'{status_code}: {urls_data[i+1]}\n------------\n'
-            continue
-        current_site_data = str(response.text)
-        for value in urls_data[i]:
-            if value[0] != '◄':
-                if not bool(re.search(value, current_site_data)):
-                    change_counter += 1
-                    allert = allert + f'{change_counter}. [{urls_data[i+1]}] - not found [{value}]\n'
-            else:
-                if bool(re.search(value[1:], current_site_data)):
-                    change_counter += 1
-                    allert += f'{change_counter}. [{urls_data[i+1]}] - found [{value[1:]}]\n'
+            if urls_data[i][0] != '◄':
+                allert += f'{status_code}: {urls_data[i+1]}\n------------\n'
+                continue
+        else:
+            current_site_data = str(response.text)
+            for value in urls_data[i]:
+                if value[0] != '◄':
+                    if not bool(re.search(value, current_site_data)):
+                        change_counter += 1
+                        allert += f'{change_counter}. [{urls_data[i+1]}]\n  • not found [{value}]\n'
+                else:
+                    if bool(re.search(value[1:], current_site_data)):
+                        change_counter += 1
+                        allert += f'{change_counter}. [{urls_data[i+1]}]\n  • found [{value[1:]}]\n'
 
     if allert != '':
         message_router(allert, change_counter)
@@ -121,7 +123,7 @@ def message_router(allert, change_counter):
     time_work = "\n--- %s seconds ---\n" % round((time.time() - start_time), 2)
     message = allert + time_work
     if is_os_windows:
-        print(f'Изменений: {change_counter}{10*" "}', '\n', message)
+        print(f'Изменений: {change_counter}{10*" "}\n{message}')
     else:
         send_mail(f'Changes on monitored sites: {change_counter}', allert)
 
