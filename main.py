@@ -1,26 +1,33 @@
-# from dotenv import load_dotenv  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ local
-import os
+from dotenv import load_dotenv
 import datetime as dt
+import os
+import platform
+import re
 import requests
 import smtplib
-import re
+import time
 
-
-EMAIL_SENDER = os.environ.get('EMAIL_SENDER')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ online ▼
-PASSWORD_EMAIL_SENDER = os.environ.get('PASSWORD_EMAIL_SENDER')
-EMAIL_RECIEVER = os.environ.get('EMAIL_RECIEVER')
-SITE_DATA = os.environ.get('SITE_DATA')
-PAGE_ID_SITE_DATA = os.environ.get('PAGE_ID_SITE_DATA')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▲
-
-# env_path = os.path.join('secrets.env')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ local ▼
-# load_dotenv(env_path)
-# EMAIL_SENDER = os.getenv('EMAIL_SENDER')
-# PASSWORD_EMAIL_SENDER = os.getenv('PASSWORD_EMAIL_SENDER')
-# EMAIL_RECIEVER = os.getenv('EMAIL_RECIEVER')
-# SITE_DATA = os.getenv('SITE_DATA')
-# PAGE_ID_SITE_DATA = os.getenv('PAGE_ID_SITE_DATA')  # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄ ▲
 
 email_flag = 0
+start_time = time.time()
+is_os_windows = platform.system() == 'Windows'
+
+if is_os_windows:
+    env_path = os.path.join('secrets.env')  # ◄local ▼
+    load_dotenv(env_path)
+    EMAIL_SENDER = os.getenv('EMAIL_SENDER')
+    PASSWORD_EMAIL_SENDER = os.getenv('PASSWORD_EMAIL_SENDER')
+    EMAIL_RECIEVER = os.getenv('EMAIL_RECIEVER')
+    SITE_DATA = os.getenv('SITE_DATA')
+    PAGE_ID_SITE_DATA = os.getenv('PAGE_ID_SITE_DATA')
+else:
+    EMAIL_SENDER = os.environ.get('EMAIL_SENDER')  # online ▼
+    PASSWORD_EMAIL_SENDER = os.environ.get('PASSWORD_EMAIL_SENDER')
+    EMAIL_RECIEVER = os.environ.get('EMAIL_RECIEVER')
+    SITE_DATA = os.environ.get('SITE_DATA')
+    PAGE_ID_SITE_DATA = os.environ.get('PAGE_ID_SITE_DATA')
+
+
 
 def finder_text(content, flag, board):
     left_id_position = content.find(flag) + len(flag)
@@ -49,11 +56,14 @@ def get_hub_data():
     all_data = str(response.text)
     value_flag = 'w[J":[["'
     find_id_position = all_data.find(value_flag) + len(value_flag)
-    all_data = all_data[find_id_position:]
+    all_data = all_data[find_id_position + 1:]
     all_urls_data = []
     while 'https://' in all_data:
         value, end_position = finder_text(all_data, value_flag, '"')
-        all_urls_data.append(value.replace('\\\\', '\\'))
+        value = value.replace('\\\\', '\\')
+        value = tuple(map(str, value.split('►')))
+        value = tuple(filter(None, value))
+        all_urls_data.append(value)
 
         url, end_position = finder_text(all_data, '"a","', '"')
         all_urls_data.append(url)
@@ -70,22 +80,23 @@ def check_data(urls_data):
     allert = ''
     change_counter = 0
     for i in range(0, len(urls_data), 2):
+        if is_os_windows:
+            print("Complete: ", round((100 / len(urls_data) * i), 1), "%", end="\r")
         response = requests.get(urls_data[i+1], headers=headers)
         status_code = response.status_code
         if status_code != 200:
-            if urls_data[i][0] != '►':
-                allert = allert + f'{status_code}: {urls_data[i+1]}\n------------\n'
-                continue
-        else:
-            current_site_data = str(response.text)
-            if urls_data[i][0] != '►':
-                if not bool(re.search(urls_data[i], current_site_data)):
+            allert = allert + f'{status_code}: {urls_data[i+1]}\n------------\n'
+            continue
+        current_site_data = str(response.text)
+        for value in urls_data[i]:
+            if value[0] != '◄':
+                if not bool(re.search(value, current_site_data)):
                     change_counter += 1
-                    allert = allert + f'{change_counter}. {urls_data[i+1]} \n'
+                    allert = allert + f'{change_counter}. [{urls_data[i+1]}] - not found [{value}]\n'
             else:
-                if bool(re.search(urls_data[i][1:], current_site_data)):
+                if bool(re.search(value[1:], current_site_data)):
                     change_counter += 1
-                    allert = allert + f'{change_counter}. {urls_data[i+1]} \n'
+                    allert = allert + f'{change_counter}. [{urls_data[i+1]}] - found [{value[1:]}]\n'
 
     if allert != '':
         message_router(allert, change_counter)
@@ -106,11 +117,13 @@ def send_mail(
     finally:
         pass
 
-
 def message_router(allert, change_counter):
-    # print(f'[{dt.datetime.now().strftime('%d.%m.%Y %H:%M')}] • {change_counter} изменений(-я,-е):\n{allert}') # ◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄◄
-    send_mail(f'Changes on monitored sites: {change_counter}', allert)
-
+    time_work = "\n--- %s seconds ---\n" % round((time.time() - start_time), 2)
+    message = allert + time_work
+    if is_os_windows:
+        print(f'Изменений: {change_counter}{10*" "}', '\n', message)
+    else:
+        send_mail(f'Changes on monitored sites: {change_counter}', allert)
 
 if __name__ == '__main__':
     urls_data = get_hub_data()
