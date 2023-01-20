@@ -94,11 +94,11 @@ def check_data(urls_data):
                 if value[0] != '◄':
                     if not bool(re.search(value, current_site_data)):
                         change_counter += 1
-                        allert += f'{change_counter}. [{urls_data[i+1]}]\n  • not found [{value}]\n'
+                        allert += f'{change_counter}. [{urls_data[i+1]}]\n  - not found [{value}]\n'
                 else:
                     if bool(re.search(value[1:], current_site_data)):
                         change_counter += 1
-                        allert += f'{change_counter}. [{urls_data[i+1]}]\n  • found [{value[1:]}]\n'
+                        allert += f'{change_counter}. [{urls_data[i+1]}]\n  - found [{value[1:]}]\n'
 
     if allert != '':
         message_router(allert, change_counter)
@@ -125,7 +125,7 @@ def message_router(allert, change_counter):
     if is_os_windows:
         print(f'Изменений: {change_counter}{10*" "}\n{message}')
     else:
-        send_mail(f'Changes on monitored sites: {change_counter}', allert)
+        send_mail(f'Changes on monitored sites: {change_counter}', message)
 
 if __name__ == '__main__':
     urls_data = get_hub_data()
