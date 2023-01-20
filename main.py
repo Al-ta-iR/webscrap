@@ -96,7 +96,7 @@ def check_data(urls_data):
             else:
                 if bool(re.search(value[1:], current_site_data)):
                     change_counter += 1
-                    allert = allert + f'{change_counter}. [{urls_data[i+1]}] - found [{value[1:]}]\n'
+                    allert += f'{change_counter}. [{urls_data[i+1]}] - found [{value[1:]}]\n'
 
     if allert != '':
         message_router(allert, change_counter)
