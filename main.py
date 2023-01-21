@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from urllib.parse import unquote
 import datetime as dt
 import os
 import platform
@@ -46,14 +47,9 @@ def get_hub_data():
         'verticalColumns': False,
     }
 
-    # try:
     response = requests.post(SITE_DATA, json=json_data)
-    # except Exception as e:
-    #     print('Fail get data from Notion')
-    # finally:
-    #     pass
 
-    all_data = str(response.text)
+    all_data = response.text
     value_flag = 'w[J":[["'
     find_id_position = all_data.find(value_flag) + len(value_flag)
     all_data = all_data[find_id_position + 1:]
@@ -82,7 +78,12 @@ def check_data(urls_data):
     for i in range(0, len(urls_data), 2):
         if is_os_windows:
             print("Complete: ", round((100 / len(urls_data) * i), 1), "%", end="\r")
-        response = requests.get(urls_data[i+1], headers=headers)
+        try:
+            url = unquote(urls_data[i+1])
+            response = requests.get(unquote(urls_data[i+1]), headers=headers)
+        except Exception as e:
+            allert += f'URL: {url} has problem: {e}\n'
+            continue
         status_code = response.status_code
         if status_code != 200:
             if urls_data[i][0] != '◄':
@@ -101,7 +102,7 @@ def check_data(urls_data):
                         allert += f'{change_counter}. [{urls_data[i+1]}]\n  - found [{value[1:]}]\n'
 
     if allert != '':
-        message_router(allert, change_counter)
+        message_router(str(allert), change_counter)
 
 
 def send_mail(
@@ -124,8 +125,8 @@ def message_router(allert, change_counter):
     message = allert + time_work
     if is_os_windows:
         print(f'Изменений: {change_counter}{10*" "}\n{message}')
-#     else:
-#         send_mail(f'Changes on monitored sites: {change_counter}', message)
+    else:
+        send_mail(f'Changes on monitored sites: {change_counter}', message)
 
 if __name__ == '__main__':
     urls_data = get_hub_data()
