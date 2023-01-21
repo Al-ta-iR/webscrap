@@ -124,8 +124,8 @@ def message_router(allert, change_counter):
     message = allert + time_work
     if is_os_windows:
         print(f'Изменений: {change_counter}{10*" "}\n{message}')
-    else:
-        send_mail(f'Changes on monitored sites: {change_counter}', message)
+#     else:
+#         send_mail(f'Changes on monitored sites: {change_counter}', message)
 
 if __name__ == '__main__':
     urls_data = get_hub_data()
