@@ -80,7 +80,10 @@ def check_data(urls_data):
             print("Complete: ", round((100 / len(urls_data) * i), 1), "%", end="\r")
         try:
             url = unquote(urls_data[i+1])
-            response = requests.get(unquote(urls_data[i+1]), headers=headers)
+            redirect = True
+            if value[0] != '◄':
+                redirect = False
+            response = requests.get(unquote(urls_data[i+1]), headers=headers, allow_redirects=redirect)
         except Exception as e:
             allert += f'URL: {url} has problem: {e}\n'
             continue
