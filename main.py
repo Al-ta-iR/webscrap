@@ -81,7 +81,7 @@ def check_data(urls_data):
         try:
             url = unquote(urls_data[i+1])
             redirect = True
-            if value[0] != '◄':
+            if url[0] != '◄':
                 redirect = False
             response = requests.get(unquote(urls_data[i+1]), headers=headers, allow_redirects=redirect)
         except Exception as e:
