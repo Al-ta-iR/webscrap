@@ -1,12 +1,13 @@
 from dotenv import load_dotenv
 from urllib.parse import unquote
-import datetime as dt
+# import datetime as dt
 import os
 import platform
 import re
 import requests
 import smtplib
 import time
+import urllib.parse
 
 
 email_flag = 0
@@ -71,38 +72,42 @@ def get_hub_data():
 def check_data(urls_data):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win32; x32; rv:106.0) Gecko/20100101 Firefox/106.0',
+        # 'Content-type': 'text/plain; charset=utf-8',
     }
     
     allert = ''
     change_counter = 0
     for i in range(0, len(urls_data), 2):
         if is_os_windows:
-            print("Complete: ", round((100 / len(urls_data) * i), 1), "%", end="\r")
+            print("Complete:", round((100 / len(urls_data) * i), 1), "%", end="\r")
+        url = urllib.parse.unquote(urls_data[i+1])
+        flag = urls_data[i]
+        if '▼' in flag[0]:
+            continue
         try:
-            url = unquote(urls_data[i+1])
             redirect = True
-            if url[0] != '◄':
+            if '▲' in flag[0]:
                 redirect = False
-            response = requests.get(unquote(urls_data[i+1]), headers=headers, allow_redirects=redirect)
+            response = requests.get((urls_data[i+1]), headers=headers, allow_redirects=redirect)
         except Exception as e:
             allert += f'URL: {url} has problem: {e}\n'
             continue
         status_code = response.status_code
         if status_code != 200:
-            if urls_data[i][0] != '◄':
+            if '◄' not in flag[0]:
                 allert += f'{status_code}: {urls_data[i+1]}\n------------\n'
                 continue
         else:
             current_site_data = str(response.text)
-            for value in urls_data[i]:
+            for value in flag:
                 if value[0] != '◄':
                     if not bool(re.search(value, current_site_data)):
                         change_counter += 1
-                        allert += f'{change_counter}. [{urls_data[i+1]}]\n  - not found [{value}]\n'
+                        allert += f'{change_counter}. [{urls_data[i+1].encode()}]\n  - not found [{value.encode()}]\n'
                 else:
                     if bool(re.search(value[1:], current_site_data)):
                         change_counter += 1
-                        allert += f'{change_counter}. [{urls_data[i+1]}]\n  - found [{value[1:]}]\n'
+                        allert += f'{change_counter}. [{urls_data[i+1].encode()}]\n  - found [{value[1:].encode()}]\n'
 
     if allert != '':
         message_router(str(allert), change_counter)
@@ -119,13 +124,15 @@ def send_mail(
         server.sendmail(EMAIL_SENDER, EMAIL_RECIEVER, message)
         server.quit()
     except Exception as e:
-        print(f'Email did not send: {e}')
+        if is_os_windows:
+            print(f'Email did not send: {e}')
+        server.sendmail(EMAIL_SENDER, EMAIL_RECIEVER, 'Subject: {}\n\n{}'.format('error', 'error'))
     finally:
         pass
 
 def message_router(allert, change_counter):
     time_work = "\n--- %s seconds ---\n" % round((time.time() - start_time), 2)
-    message = allert + time_work
+    message = (allert + time_work)
     if is_os_windows:
         print(f'Изменений: {change_counter}{10*" "}\n{message}')
     else:
