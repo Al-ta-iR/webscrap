@@ -22,12 +22,16 @@ if is_os_windows:
     EMAIL_RECIEVER = os.getenv('EMAIL_RECIEVER')
     SITE_DATA = os.getenv('SITE_DATA')
     PAGE_ID_SITE_DATA = os.getenv('PAGE_ID_SITE_DATA')
+    RUTRACKER_LOGIN_USERNAME = os.getenv('RUTRACKER_LOGIN_USERNAME')
+    RUTRACKER_LOGIN_PASSWORD = os.getenv('RUTRACKER_LOGIN_PASSWORD')
 else:
     EMAIL_SENDER = os.environ.get('EMAIL_SENDER')  # online ▼
     PASSWORD_EMAIL_SENDER = os.environ.get('PASSWORD_EMAIL_SENDER')
     EMAIL_RECIEVER = os.environ.get('EMAIL_RECIEVER')
     SITE_DATA = os.environ.get('SITE_DATA')
     PAGE_ID_SITE_DATA = os.environ.get('PAGE_ID_SITE_DATA')
+    RUTRACKER_LOGIN_USERNAME = os.environ.get('RUTRACKER_LOGIN_USERNAME')
+    RUTRACKER_LOGIN_PASSWORD = os.environ.get('RUTRACKER_LOGIN_PASSWORD')
 
 
 
@@ -88,14 +92,23 @@ def check_data(urls_data):
             redirect = True
             if '▲' in flag[0]:
                 redirect = False
-            response = requests.get((urls_data[i+1]), headers=headers, allow_redirects=redirect)
+            if 'rutracker' in url:
+                data = {
+                    "redirect": url[28:].replace("/", ""),
+                    "login_username": RUTRACKER_LOGIN_USERNAME,
+                    "login_password": RUTRACKER_LOGIN_PASSWORD,
+                    "login": "%C2%F5%EE%E4",
+                }
+                response = requests.post("https://rutracker.org/forum/login.php", headers=headers, allow_redirects=redirect, data=data)
+            else:
+                response = requests.get(url, headers=headers, allow_redirects=redirect)
         except Exception as e:
             allert += f'URL: {url} has problem: {e}\n'
             continue
         status_code = response.status_code
         if status_code != 200:
             if '◄' not in flag[0]:
-                allert += f'{status_code}: {urls_data[i+1]}\n------------\n'
+                allert += f'{status_code}: {url}\n------------\n'
                 continue
         else:
             current_site_data = str(response.text)
@@ -103,11 +116,11 @@ def check_data(urls_data):
                 if value[0] != '◄':
                     if not bool(re.search(value, current_site_data)):
                         change_counter += 1
-                        allert += f'{change_counter}. [{urls_data[i+1].encode()}]\n  - not found [{value.encode()}]\n'
+                        allert += f'{change_counter}. [{url.encode()}]\n  - not found [{value.encode()}]\n'
                 else:
                     if bool(re.search(value[1:], current_site_data)):
                         change_counter += 1
-                        allert += f'{change_counter}. [{urls_data[i+1].encode()}]\n  - found [{value[1:].encode()}]\n'
+                        allert += f'{change_counter}. [{url.encode()}]\n  - found [{value[1:].encode()}]\n'
 
     if allert != '':
         message_router(str(allert), change_counter)

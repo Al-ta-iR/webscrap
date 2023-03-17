@@ -39,6 +39,8 @@ jobs:
           EMAIL_RECIEVER: ${{ secrets.EMAIL_RECIEVER }}
           SITE_DATA: ${{ secrets.SITE_DATA }}
           PAGE_ID_SITE_DATA: ${{ secrets.PAGE_ID_SITE_DATA }}
+          RUTRACKER_LOGIN_USERNAME: ${{ secrets.RUTRACKER_LOGIN_USERNAME }}
+          RUTRACKER_LOGIN_PASSWORD: ${{ secrets.RUTRACKER_LOGIN_PASSWORD }}
         run: python main.py
 
 
