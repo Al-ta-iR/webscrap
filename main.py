@@ -8,6 +8,7 @@ import requests
 import smtplib
 import time
 import urllib.parse
+from search_data import get_hub_data
 
 
 email_flag = 0
@@ -34,48 +35,9 @@ else:
     RUTRACKER_LOGIN_PASSWORD = os.environ.get('RUTRACKER_LOGIN_PASSWORD')
 
 
-
-def finder_text(content, flag, board):
-    left_id_position = content.find(flag) + len(flag)
-    right_id_position = content[left_id_position : ].find(board) + left_id_position
-    text = content[left_id_position : right_id_position]
-    return text, right_id_position
-
-
-def get_hub_data():
-    json_data = {
-        'page': {
-            'id': PAGE_ID_SITE_DATA,
-        },
-        'limit': 100,
-        'chunkNumber': 0,
-        'verticalColumns': False,
-    }
-
-    response = requests.post(SITE_DATA, json=json_data)
-
-    all_data = response.text
-    value_flag = 'w[J":[["'
-    find_id_position = all_data.find(value_flag) + len(value_flag)
-    all_data = all_data[find_id_position + 1:]
-    all_urls_data = []
-    while 'https://' in all_data:
-        value, end_position = finder_text(all_data, value_flag, '"')
-        value = value.replace('\\\\', '\\')
-        value = tuple(map(str, value.split('►')))
-        value = tuple(filter(None, value))
-        all_urls_data.append(value)
-
-        url, end_position = finder_text(all_data, '"a","', '"')
-        all_urls_data.append(url)
-
-        all_data = all_data[end_position + 1:]
-    return all_urls_data
-
-
 def check_data(urls_data):
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win32; x32; rv:106.0) Gecko/20100101 Firefox/106.0',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win32; x32; rv:106.0) Gecko/20100101 Firefox/111.0',
         # 'Content-type': 'text/plain; charset=utf-8',
     }
     
@@ -109,24 +71,64 @@ def check_data(urls_data):
         status_code = response.status_code
         if status_code != 200:
             if '◄' not in flag[0]:
-                # if 'artikal/520225/Kuca-120m2' in url:
-                #     print('▼')
                 allert_status += f'{status_code}: {url}\n'
                 continue
         else:
             current_site_data = str(response.text)
             for value in flag:
                 if value[0] != '◄':
+                    search_trigger = '∟∟'
+                    if search_trigger in value:
+                        start = value.find(search_trigger)
+                        end = value.find(':')
+                        flag_counter_string = value[start+len(search_trigger):end]
+                        if flag_counter_string.isnumeric():
+                            flag_counter = int(flag_counter_string)
+                        else:
+                            allert += f'Flag {value} does not have number'
+                            continue
+                        flag_search = value.split(":", 1)[1]
+                        count = current_site_data.count(flag_search)
+                        if count == flag_counter:
+                            continue
+                        else:
+                            change_counter += 1
+                            allert += f'{change_counter}. [{url.encode()}]\n  - flag [{flag_search.encode()}] needed {flag_counter} - found {count}\n'
+                            continue
+
                     if not bool(re.search(value, current_site_data)):
                         change_counter += 1
                         allert += f'{change_counter}. [{url.encode()}]\n  - not found [{value.encode()}]\n'
                 else:
+                    search_trigger = '∟∟'
+                    if search_trigger in value:
+                        start = value.find(search_trigger)
+                        end = value.find(':')
+                        flag_counter_string = value[start+len(search_trigger):end]
+                        if flag_counter_string.isnumeric():
+                            flag_counter = int(flag_counter_string)
+                        else:
+                            allert += f'Flag {value} does not have number'
+                            continue
+                        flag_search = value.split(":", 1)[1]
+                        count = current_site_data.count(flag_search)
+                        if count != flag_counter:
+                            continue
+                        else:
+                            change_counter += 1
+                            allert += f'{change_counter}. [{url.encode()}]\n  - flag [{flag_search.encode()}] NOT needed {flag_counter}:{count}\n'
+                            continue
                     if bool(re.search(value[1:], current_site_data)):
                         change_counter += 1
                         allert += f'{change_counter}. [{url.encode()}]\n  - found [{value[1:].encode()}]\n'
 
-    if allert_status != '' or allert != '':
-        message_router(str('Status code:\n' + allert_status + '\n------------\n\n' + 'Changes:\n' + allert), change_counter)
+    if allert_status != '' and allert == '':
+        message = 'Status code:\n' + allert_status
+    elif allert != '' and allert_status == '':
+        message = 'Changes:\n' + allert
+    else:
+        message = 'Status code:\n' + allert_status + '\n------------\n\n' + allert
+    message_router(message, change_counter)
 
 
 def send_mail(
@@ -157,5 +159,5 @@ def message_router(allert, change_counter):
         send_mail(f'Changes on monitored sites: {change_counter}', message)
 
 if __name__ == '__main__':
-    urls_data = get_hub_data()
+    urls_data = get_hub_data(PAGE_ID_SITE_DATA, SITE_DATA)
     check_data(urls_data)
