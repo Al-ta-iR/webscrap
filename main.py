@@ -80,6 +80,7 @@ def check_data(urls_data):
     }
     
     allert = ''
+    allert_status = ''
     change_counter = 0
     for i in range(0, len(urls_data), 2):
         if is_os_windows:
@@ -108,7 +109,9 @@ def check_data(urls_data):
         status_code = response.status_code
         if status_code != 200:
             if '◄' not in flag[0]:
-                allert += f'{status_code}: {url}\n------------\n'
+                # if 'artikal/520225/Kuca-120m2' in url:
+                #     print('▼')
+                allert_status += f'{status_code}: {url}\n'
                 continue
         else:
             current_site_data = str(response.text)
@@ -122,8 +125,8 @@ def check_data(urls_data):
                         change_counter += 1
                         allert += f'{change_counter}. [{url.encode()}]\n  - found [{value[1:].encode()}]\n'
 
-    if allert != '':
-        message_router(str(allert), change_counter)
+    if allert_status != '' or allert != '':
+        message_router(str('Status code:\n' + allert_status + '\n------------\n\n' + 'Changes:\n' + allert), change_counter)
 
 
 def send_mail(
@@ -147,7 +150,9 @@ def message_router(allert, change_counter):
     time_work = "\n--- %s seconds ---\n" % round((time.time() - start_time), 2)
     message = (allert + time_work)
     if is_os_windows:
+        print()
         print(f'Изменений: {change_counter}{10*" "}\n{message}')
+        # send_mail(f'Changes on monitored sites: {change_counter}', message)
     else:
         send_mail(f'Changes on monitored sites: {change_counter}', message)
 
