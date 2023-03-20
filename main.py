@@ -6,6 +6,7 @@ import platform
 import re
 import requests
 import smtplib
+import concurrent.futures
 import time
 import urllib.parse
 from search_data import get_hub_data
@@ -35,100 +36,97 @@ else:
     RUTRACKER_LOGIN_PASSWORD = os.environ.get('RUTRACKER_LOGIN_PASSWORD')
 
 
-def check_data(urls_data):
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win32; x32; rv:106.0) Gecko/20100101 Firefox/111.0',
-        # 'Content-type': 'text/plain; charset=utf-8',
-    }
+def search_string(search_trigger, url, value, change_counter, current_site_data, is_equals):
+    allert = ""
+    start = value.find(search_trigger)
+    end = value.find(':')
+    flag_counter_string = value[start+len(search_trigger):end]
+    if not flag_counter_string.isnumeric():
+        allert += f'Flag {value} does not have number'
+        return allert
+    flag_counter = int(flag_counter_string)
+    flag_search = value.split(":", 1)[1]
+    count = current_site_data.count(flag_search)
+    if (count == flag_counter) is is_equals:
+        return ''
+    else:
+        change_counter += 1
+        allert += f'{change_counter}. [{url.encode()}]\n  - flag [{flag_search.encode()}] {("needed" if is_equals else "NOT needed")} {flag_counter} - found {count}\n'
+        return allert
+
+
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win32; x32; rv:106.0) Gecko/20100101 Firefox/111.0',
+}
+
+def check_url(url_data):
+    url, flag = url_data
+    allert = ''
+    change_counter = 0
+    if '▼' in flag[0]:
+        return allert, change_counter
     
+    try:
+        redirect = True
+        if '▲' in flag[0]:
+            redirect = False
+        if 'rutracker' in url:
+            data = {
+                "redirect": url[28:].replace("/", ""),
+                "login_username": RUTRACKER_LOGIN_USERNAME,
+                "login_password": RUTRACKER_LOGIN_PASSWORD,
+                "login": "%C2%F5%EE%E4",
+            }
+            response = requests.post("https://rutracker.org/forum/login.php", headers=headers, allow_redirects=redirect, data=data)
+        else:
+            response = requests.get(url, headers=headers, allow_redirects=redirect)
+    except Exception as e:
+        allert += f'URL: {url} has problem: {e}\n'
+        return allert, change_counter
+    
+    status_code = response.status_code
+    if status_code != 200:
+        if '◄' not in flag[0]:
+            allert += f'{status_code}: {url}\n'
+        return allert, change_counter
+    
+    current_site_data = str(response.text)
+    for value in flag:
+        search_trigger = '∟∟'
+        if value[0] != '◄':
+            if search_trigger in value:
+                allert += search_string(search_trigger, url, value, change_counter, current_site_data, True)
+                continue
+            if not bool(re.search(value, current_site_data)):
+                change_counter += 1
+                allert += f'{change_counter}. [{url.encode()}]\n  - not found [{value.encode()}]\n'
+        else:
+            if search_trigger in value:
+                allert += search_string(search_trigger, url, value, change_counter, current_site_data, False)
+                continue
+            if re.search(value[1:], current_site_data):
+                change_counter += 1
+                allert += f'{change_counter}. [{url.encode()}]\n  - found [{value[1:].encode()}]\n'
+    
+    return allert, change_counter
+
+
+def check_data(urls_data):
     allert = ''
     allert_status = ''
     change_counter = 0
-    for i in range(0, len(urls_data), 2):
-        if is_os_windows:
-            print("Complete:", round((100 / len(urls_data) * i), 1), "%", end="\r")
-        url = urllib.parse.unquote(urls_data[i+1])
-        flag = urls_data[i]
-        if '▼' in flag[0]:
-            continue
-        try:
-            redirect = True
-            if '▲' in flag[0]:
-                redirect = False
-            if 'rutracker' in url:
-                data = {
-                    "redirect": url[28:].replace("/", ""),
-                    "login_username": RUTRACKER_LOGIN_USERNAME,
-                    "login_password": RUTRACKER_LOGIN_PASSWORD,
-                    "login": "%C2%F5%EE%E4",
-                }
-                response = requests.post("https://rutracker.org/forum/login.php", headers=headers, allow_redirects=redirect, data=data)
-            else:
-                response = requests.get(url, headers=headers, allow_redirects=redirect)
-        except Exception as e:
-            allert += f'URL: {url} has problem: {e}\n'
-            continue
-        status_code = response.status_code
-        if status_code != 200:
-            if '◄' not in flag[0]:
-                allert_status += f'{status_code}: {url}\n'
-                continue
-        else:
-            current_site_data = str(response.text)
-            for value in flag:
-                if value[0] != '◄':
-                    search_trigger = '∟∟'
-                    if search_trigger in value:
-                        start = value.find(search_trigger)
-                        end = value.find(':')
-                        flag_counter_string = value[start+len(search_trigger):end]
-                        if flag_counter_string.isnumeric():
-                            flag_counter = int(flag_counter_string)
-                        else:
-                            allert += f'Flag {value} does not have number'
-                            continue
-                        flag_search = value.split(":", 1)[1]
-                        count = current_site_data.count(flag_search)
-                        if count == flag_counter:
-                            continue
-                        else:
-                            change_counter += 1
-                            allert += f'{change_counter}. [{url.encode()}]\n  - flag [{flag_search.encode()}] needed {flag_counter} - found {count}\n'
-                            continue
-
-                    if not bool(re.search(value, current_site_data)):
-                        change_counter += 1
-                        allert += f'{change_counter}. [{url.encode()}]\n  - not found [{value.encode()}]\n'
-                else:
-                    search_trigger = '∟∟'
-                    if search_trigger in value:
-                        start = value.find(search_trigger)
-                        end = value.find(':')
-                        flag_counter_string = value[start+len(search_trigger):end]
-                        if flag_counter_string.isnumeric():
-                            flag_counter = int(flag_counter_string)
-                        else:
-                            allert += f'Flag {value} does not have number'
-                            continue
-                        flag_search = value.split(":", 1)[1]
-                        count = current_site_data.count(flag_search)
-                        if count != flag_counter:
-                            continue
-                        else:
-                            change_counter += 1
-                            allert += f'{change_counter}. [{url.encode()}]\n  - flag [{flag_search.encode()}] NOT needed {flag_counter}:{count}\n'
-                            continue
-                    if bool(re.search(value[1:], current_site_data)):
-                        change_counter += 1
-                        allert += f'{change_counter}. [{url.encode()}]\n  - found [{value[1:].encode()}]\n'
-
-    if allert_status != '' and allert == '':
-        message = 'Status code:\n' + allert_status
-    elif allert != '' and allert_status == '':
+    url_data = [(urllib.parse.unquote(urls_data[i+1]), urls_data[i]) for i in range(0, len(urls_data), 2)]
+    
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        results = executor.map(check_url, url_data)
+    
+    for result in results:
+        allert += result[0]
+        change_counter += result[1]
+    
+    if allert != '':
         message = 'Changes:\n' + allert
-    else:
-        message = 'Status code:\n' + allert_status + '\n------------\n\n' + allert
-    message_router(message, change_counter)
+        message_router(message, change_counter)
 
 
 def send_mail(
