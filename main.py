@@ -124,7 +124,7 @@ def check_data(urls_data):
         change_counter += result[1]
     
     if allert != '':
-        if '•' in allert:
+        if '*' in allert:
             lines_message = allert.split('\n')
             sorted_lines = sorted(lines_message, key=lambda x: x.startswith('*'))
             allert = '\n'.join(sorted_lines)
