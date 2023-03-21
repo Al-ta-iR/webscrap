@@ -128,7 +128,7 @@ def check_data(urls_data):
             lines_message = allert.split('\n')
             sorted_lines = sorted(lines_message, key=lambda x: x.startswith('*'))
             allert = '\n'.join(sorted_lines)
-        message = 'Changes:\n' + allert
+        message = 'Changes:\n' + allert + '\n'
         message_router(message, change_counter)
 
 
