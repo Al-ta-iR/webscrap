@@ -87,7 +87,7 @@ def check_url(url_data):
     status_code = response.status_code
     if status_code != 200:
         if '◄' not in flag[0]:
-            allert += f'• {status_code}: {url}\n'
+            allert += f'* {status_code}: {url}\n'
         return allert, change_counter
     
     current_site_data = str(response.text)
@@ -99,21 +99,20 @@ def check_url(url_data):
                 continue
             if not bool(re.search(value, current_site_data)):
                 change_counter += 1
-                allert += f'► [{url.encode()}]\n  - not found [{value.encode()}]\n'
+                allert += f'>> [{url.encode()}]\n  - not found [{value.encode()}]\n'
         else:
             if search_trigger in value:
                 allert += search_string(search_trigger, url, value, change_counter, current_site_data, False)
                 continue
             if re.search(value[1:], current_site_data):
                 change_counter += 1
-                allert += f'► [{url.encode()}]\n  - found [{value[1:].encode()}]\n'
+                allert += f'>> [{url.encode()}]\n  - found [{value[1:].encode()}]\n'
     
     return allert, change_counter
 
 
 def check_data(urls_data):
     allert = ''
-    allert_status = ''
     change_counter = 0
     url_data = [(urllib.parse.unquote(urls_data[i+1]), urls_data[i]) for i in range(0, len(urls_data), 2)]
     
@@ -127,7 +126,7 @@ def check_data(urls_data):
     if allert != '':
         if '•' in allert:
             lines_message = allert.split('\n')
-            sorted_lines = sorted(lines_message, key=lambda x: x.startswith('•'))
+            sorted_lines = sorted(lines_message, key=lambda x: x.startswith('*'))
             allert = '\n'.join(sorted_lines)
         message = 'Changes:\n' + allert
         message_router(message, change_counter)
