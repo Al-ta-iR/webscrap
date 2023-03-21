@@ -51,7 +51,7 @@ def search_string(search_trigger, url, value, change_counter, current_site_data,
         return ''
     else:
         change_counter += 1
-        allert += f'{change_counter}. [{url.encode()}]\n  - flag [{flag_search.encode()}] {("needed" if is_equals else "NOT needed")} {flag_counter} - found {count}\n'
+        allert += f'{change_counter}. [{url.encode()}]\n  - flag [{flag_search.encode()}] {("needed" if is_equals else "NOT needed")} {flag_counter}   - found {count}\n'
         return allert
 
 
@@ -99,14 +99,14 @@ def check_url(url_data):
                 continue
             if not bool(re.search(value, current_site_data)):
                 change_counter += 1
-                allert += f'>> [{url.encode()}]\n  - not found [{value.encode()}]\n'
+                allert += f'>> [{url.encode()}]\n    - not found [{value.encode()}]\n'
         else:
             if search_trigger in value:
                 allert += search_string(search_trigger, url, value, change_counter, current_site_data, False)
                 continue
             if re.search(value[1:], current_site_data):
                 change_counter += 1
-                allert += f'>> [{url.encode()}]\n  - found [{value[1:].encode()}]\n'
+                allert += f'>> [{url.encode()}]\n    - found [{value[1:].encode()}]\n'
     
     return allert, change_counter
 
@@ -128,7 +128,7 @@ def check_data(urls_data):
             lines_message = allert.split('\n')
             sorted_lines = sorted(lines_message, key=lambda x: x.startswith('*'))
             allert = '\n'.join(sorted_lines)
-        message = 'Changes:\n' + allert + '\n'
+        message = 'Changes:\n\n' + allert + '\n'
         message_router(message, change_counter)
 
 
