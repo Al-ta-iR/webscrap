@@ -52,7 +52,7 @@ def search_string(search_trigger, url, value, change_counter, current_site_data,
     else:
         change_counter += 1
         allert += f'>> [{url.encode()}]\n    - flag [{flag_search.encode()}] {("needed" if is_equals else "NOT needed")} {flag_counter}   - found {count}\n'
-        return allert
+        return allert, change_counter
 
 
 headers = {
@@ -95,14 +95,16 @@ def check_url(url_data):
         search_trigger = '∟∟'
         if value[0] != '◄':
             if search_trigger in value:
-                allert += search_string(search_trigger, url, value, change_counter, current_site_data, True)
+                result_search, change_counter = search_string(search_trigger, url, value, change_counter, current_site_data, True)
+                allert += result_search
                 continue
             if not bool(re.search(value, current_site_data)):
                 change_counter += 1
                 allert += f'>> [{url.encode()}]\n    - not found [{value.encode()}]\n'
         else:
             if search_trigger in value:
-                allert += search_string(search_trigger, url, value, change_counter, current_site_data, False)
+                result_search, change_counter = search_string(search_trigger, url, value, change_counter, current_site_data, False)
+                allert += result_search
                 continue
             if re.search(value[1:], current_site_data):
                 change_counter += 1
