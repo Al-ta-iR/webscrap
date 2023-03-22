@@ -48,7 +48,7 @@ def search_string(search_trigger, url, value, change_counter, current_site_data,
     flag_search = value.split(":", 1)[1]
     count = current_site_data.count(flag_search)
     if (count == flag_counter) is is_equals:
-        return ''
+        return '', change_counter
     else:
         change_counter += 1
         allert += f'>> [{url.encode()}]\n    - flag [{flag_search.encode()}] {("needed" if is_equals else "NOT needed")} {flag_counter} - found {count}\n'
