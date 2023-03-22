@@ -51,7 +51,7 @@ def search_string(search_trigger, url, value, change_counter, current_site_data,
         return ''
     else:
         change_counter += 1
-        allert += f'{change_counter}. [{url.encode()}]\n  - flag [{flag_search.encode()}] {("needed" if is_equals else "NOT needed")} {flag_counter}   - found {count}\n'
+        allert += f'>> [{url.encode()}]\n    - flag [{flag_search.encode()}] {("needed" if is_equals else "NOT needed")} {flag_counter}   - found {count}\n'
         return allert
 
 
