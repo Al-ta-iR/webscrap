@@ -59,6 +59,7 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win32; x32; rv:106.0) Gecko/20100101 Firefox/111.0',
 }
 
+
 def check_url(url_data):
     url, flag = url_data
     allert = ''
