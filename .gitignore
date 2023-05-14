@@ -102,6 +102,10 @@ celerybeat.pid
 *.sage.py
 help.py
 secrets.env
+credentials
+credentials.json
+token.json
+client_secret.json
 
 # Environments
 .env

@@ -9,7 +9,8 @@ import smtplib
 import concurrent.futures
 import time
 import urllib.parse
-from search_data import get_hub_data
+from google_sheet import google_sheet_get_data
+# from search_data import get_hub_data
 
 
 email_flag = 0
@@ -22,16 +23,18 @@ if is_os_windows:
     EMAIL_SENDER = os.getenv('EMAIL_SENDER')
     PASSWORD_EMAIL_SENDER = os.getenv('PASSWORD_EMAIL_SENDER')
     EMAIL_RECIEVER = os.getenv('EMAIL_RECIEVER')
-    SITE_DATA = os.getenv('SITE_DATA')
-    PAGE_ID_SITE_DATA = os.getenv('PAGE_ID_SITE_DATA')
+    CLIENT_SECRETS_GOOGLE = os.getenv('CLIENT_SECRETS_GOOGLE')
+    # SITE_DATA = os.getenv('SITE_DATA')
+    # PAGE_ID_SITE_DATA = os.getenv('PAGE_ID_SITE_DATA')
     RUTRACKER_LOGIN_USERNAME = os.getenv('RUTRACKER_LOGIN_USERNAME')
     RUTRACKER_LOGIN_PASSWORD = os.getenv('RUTRACKER_LOGIN_PASSWORD')
 else:
     EMAIL_SENDER = os.environ.get('EMAIL_SENDER')  # online ▼
     PASSWORD_EMAIL_SENDER = os.environ.get('PASSWORD_EMAIL_SENDER')
     EMAIL_RECIEVER = os.environ.get('EMAIL_RECIEVER')
-    SITE_DATA = os.environ.get('SITE_DATA')
-    PAGE_ID_SITE_DATA = os.environ.get('PAGE_ID_SITE_DATA')
+    CLIENT_SECRETS_GOOGLE = os.environ.get('CLIENT_SECRETS_GOOGLE')
+    # SITE_DATA = os.environ.get('SITE_DATA')
+    # PAGE_ID_SITE_DATA = os.environ.get('PAGE_ID_SITE_DATA')
     RUTRACKER_LOGIN_USERNAME = os.environ.get('RUTRACKER_LOGIN_USERNAME')
     RUTRACKER_LOGIN_PASSWORD = os.environ.get('RUTRACKER_LOGIN_PASSWORD')
 
@@ -117,7 +120,7 @@ def check_url(url_data):
 def check_data(urls_data):
     allert = ''
     change_counter = 0
-    url_data = [(urllib.parse.unquote(urls_data[i+1]), urls_data[i]) for i in range(0, len(urls_data), 2)]
+    url_data = [(urllib.parse.unquote(urls_data[i]), urls_data[i+1]) for i in range(0, len(urls_data), 2)]
     
     with concurrent.futures.ThreadPoolExecutor() as executor:
         results = executor.map(check_url, url_data)
@@ -158,10 +161,10 @@ def message_router(allert, change_counter):
     if is_os_windows:
         print()
         print(f'Изменений: {change_counter}{10*" "}\n{message}')
-        # send_mail(f'Changes on monitored sites: {change_counter}', message)
+        send_mail(f'Changes on monitored sites: {change_counter}', message)
     else:
         send_mail(f'Changes on monitored sites: {change_counter}', message)
 
 if __name__ == '__main__':
-    urls_data = get_hub_data(PAGE_ID_SITE_DATA, SITE_DATA)
+    urls_data = google_sheet_get_data('OSINT', CLIENT_SECRETS_GOOGLE)
     check_data(urls_data)
