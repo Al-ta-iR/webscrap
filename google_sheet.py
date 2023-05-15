@@ -34,7 +34,7 @@ def google_sheet_get_data(GOOGLE_CREDENTIALS_VAL):
         is_parse = False
         urls_data = []
         for row in rows:
-            if not is_parse and "№" not in row and "Result" not in row:
+            if len(row) == 0 or (not is_parse and "№" not in row and "Result" not in row):
                 continue
             if not is_parse and "№" in row and "Result" in row:
                 is_parse = True
@@ -49,9 +49,12 @@ def google_sheet_get_data(GOOGLE_CREDENTIALS_VAL):
                         urls_data.append(item)
                         is_needed_item = True
                     elif is_needed_item:
-                        item = item.split("►")
-                        # for keys in item:
-                        urls_data.append(item)
+                        if item == '' or len(item) < 2:
+                            urls_data.append(["--- EMPTY SEARCH FLAG ---"])
+                        else:
+                            item = item.split("►")
+                            # for keys in item:
+                            urls_data.append(item)
 
                         is_needed_item = False
         #         value = tuple(map(str, value.split('►')))

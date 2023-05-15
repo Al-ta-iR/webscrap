@@ -139,7 +139,6 @@ def check_data(urls_data):
         (urllib.parse.unquote(urls_data[i]), urls_data[i + 1])
         for i in range(0, len(urls_data), 2)
     ]
-
     with concurrent.futures.ThreadPoolExecutor() as executor:
         results = executor.map(check_url, url_data)
 
