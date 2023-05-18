@@ -94,7 +94,7 @@ def check_url(url_data):
                 headers=headers,
                 allow_redirects=redirect,
                 data=data,
-                timeout=10,
+                timeout=5,
             )
         else:
             response = requests.get(url, headers=headers, allow_redirects=redirect)

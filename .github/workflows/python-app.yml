@@ -38,6 +38,7 @@ jobs:
           PASSWORD_EMAIL_SENDER: ${{ secrets.PASSWORD_EMAIL_SENDER }}
           EMAIL_RECIEVER: ${{ secrets.EMAIL_RECIEVER }}
           CLIENT_SECRETS_GOOGLE: ${{ secrets.CLIENT_SECRETS_GOOGLE }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
           GOOGLE_CREDENTIALS_VAL: ${{ secrets.GOOGLE_CREDENTIALS_VAL }}
           SITE_DATA: ${{ secrets.SITE_DATA }}
           PAGE_ID_SITE_DATA: ${{ secrets.PAGE_ID_SITE_DATA }}
