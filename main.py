@@ -26,6 +26,7 @@ if is_os_windows:
     PASSWORD_EMAIL_SENDER = os.getenv("PASSWORD_EMAIL_SENDER")
     EMAIL_RECIEVER = os.getenv("EMAIL_RECIEVER")
     # CLIENT_SECRETS_GOOGLE = os.getenv('CLIENT_SECRETS_GOOGLE')
+    SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
     GOOGLE_CREDENTIALS_VAL = os.getenv("GOOGLE_CREDENTIALS_VAL")
     # SITE_DATA = os.getenv('SITE_DATA')
     # PAGE_ID_SITE_DATA = os.getenv('PAGE_ID_SITE_DATA')
@@ -36,6 +37,7 @@ else:
     PASSWORD_EMAIL_SENDER = os.environ.get("PASSWORD_EMAIL_SENDER")
     EMAIL_RECIEVER = os.environ.get("EMAIL_RECIEVER")
     # CLIENT_SECRETS_GOOGLE = os.environ.get('CLIENT_SECRETS_GOOGLE')
+    SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
     GOOGLE_CREDENTIALS_VAL = os.environ.get("GOOGLE_CREDENTIALS_VAL")
     # SITE_DATA = os.environ.get('SITE_DATA')
     # PAGE_ID_SITE_DATA = os.environ.get('PAGE_ID_SITE_DATA')
@@ -92,6 +94,7 @@ def check_url(url_data):
                 headers=headers,
                 allow_redirects=redirect,
                 data=data,
+                timeout=10,
             )
         else:
             response = requests.get(url, headers=headers, allow_redirects=redirect)
@@ -184,7 +187,7 @@ def message_router(allert, change_counter):
 
 
 if __name__ == "__main__":
-    urls_data = google_sheet_get_data(GOOGLE_CREDENTIALS_VAL)
+    urls_data = google_sheet_get_data(SPREADSHEET_ID, GOOGLE_CREDENTIALS_VAL)
     if urls_data is False:
         message_router("Проблема с парсингом БД", 1)
     else:

@@ -6,7 +6,7 @@ from apiclient import discovery
 from google.oauth2 import service_account
 
 
-def google_sheet_get_data(GOOGLE_CREDENTIALS_VAL):
+def google_sheet_get_data(SPREADSHEET_ID, GOOGLE_CREDENTIALS_VAL):
     try:
         scopes = [
             "https://www.googleapis.com/auth/drive",
@@ -15,7 +15,6 @@ def google_sheet_get_data(GOOGLE_CREDENTIALS_VAL):
         ]
         secret = json.loads(GOOGLE_CREDENTIALS_VAL)
 
-        spreadsheet_id = "1G2nXkcyPnGvFHOZnZAG_BJVdiYwjyNxdbUT51U5Acuw"
         # range_name = 'WebScrap!A1:L50'
 
         credentials = service_account.Credentials.from_service_account_info(
@@ -26,7 +25,7 @@ def google_sheet_get_data(GOOGLE_CREDENTIALS_VAL):
         result = (
             service.spreadsheets()
             .values()
-            .get(spreadsheetId=spreadsheet_id, range="WebScrap")
+            .get(spreadsheetId=SPREADSHEET_ID, range="WebScrap")
             .execute()
         )
         rows = result.get("values", [])
