@@ -40,6 +40,8 @@ def google_sheet_get_data(SPREADSHEET_ID, GOOGLE_CREDENTIALS_VAL):
                 continue
             if "===END===" in row:
                 is_parse = False
+                if len(urls_data) % 2 != 0:
+                    urls_data.append(["--- EMPTY SEARCH FLAG ---"])
                 break
             elif is_parse:
                 is_needed_item = False
