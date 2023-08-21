@@ -10,6 +10,7 @@ import smtplib
 import concurrent.futures
 import time
 import urllib.parse
+import uncurl
 from google_sheet import google_sheet_get_data
 
 # from search_data import get_hub_data
@@ -26,8 +27,8 @@ if is_os_windows:
     PASSWORD_EMAIL_SENDER = os.getenv("PASSWORD_EMAIL_SENDER")
     EMAIL_RECIEVER = os.getenv("EMAIL_RECIEVER")
     # CLIENT_SECRETS_GOOGLE = os.getenv('CLIENT_SECRETS_GOOGLE')
-    SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
     GOOGLE_CREDENTIALS_VAL = os.getenv("GOOGLE_CREDENTIALS_VAL")
+    SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
     # SITE_DATA = os.getenv('SITE_DATA')
     # PAGE_ID_SITE_DATA = os.getenv('PAGE_ID_SITE_DATA')
     RUTRACKER_LOGIN_USERNAME = os.getenv("RUTRACKER_LOGIN_USERNAME")
@@ -37,12 +38,34 @@ else:
     PASSWORD_EMAIL_SENDER = os.environ.get("PASSWORD_EMAIL_SENDER")
     EMAIL_RECIEVER = os.environ.get("EMAIL_RECIEVER")
     # CLIENT_SECRETS_GOOGLE = os.environ.get('CLIENT_SECRETS_GOOGLE')
-    SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
     GOOGLE_CREDENTIALS_VAL = os.environ.get("GOOGLE_CREDENTIALS_VAL")
+    SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
     # SITE_DATA = os.environ.get('SITE_DATA')
     # PAGE_ID_SITE_DATA = os.environ.get('PAGE_ID_SITE_DATA')
     RUTRACKER_LOGIN_USERNAME = os.environ.get("RUTRACKER_LOGIN_USERNAME")
     RUTRACKER_LOGIN_PASSWORD = os.environ.get("RUTRACKER_LOGIN_PASSWORD")
+
+
+def make_request_from_curl_obj(context):
+    # Распаковать объект запроса
+    method = context.method
+    url = context.url
+    data = context.data
+    headers = context.headers
+    cookies = context.cookies
+    auth = context.auth
+    proxies = None
+    if 'proxies' in context:
+        proxies = context.proxies
+
+    # Сделать запрос
+    if method.upper() == 'GET':
+        response = requests.get(url, headers=headers, cookies=cookies, auth=auth, proxies=proxies)
+    elif method.upper() == 'POST':
+        response = requests.post(url, data=data, headers=headers, cookies=cookies, auth=auth, proxies=proxies)
+    else:
+        raise ValueError(f'Метод {method} не поддерживается')
+    return response
 
 
 def search_string(
@@ -82,6 +105,9 @@ def check_url(url_data):
         redirect = True
         if "▲" in flag[0]:
             redirect = False
+        if 'curl' in url:
+            context = uncurl.parse_context(url)
+            response = make_request_from_curl_obj(context)
         if "rutracker" in url:
             data = {
                 "redirect": url[28:].replace("/", ""),
@@ -94,13 +120,13 @@ def check_url(url_data):
                 headers=headers,
                 allow_redirects=redirect,
                 data=data,
-                timeout=5,
             )
         else:
             response = requests.get(url, headers=headers, allow_redirects=redirect)
     except Exception as e:
-        allert += f"URL: {url} has problem: {e}\n"
-        return allert, change_counter
+        if 'curl' not in url:
+            allert += f"URL: {url} has problem: {e}\n"
+            return allert, change_counter
 
     status_code = response.status_code
     if status_code != 200:
