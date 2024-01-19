@@ -124,9 +124,8 @@ def check_url(url_data):
         else:
             response = requests.get(url, headers=headers, allow_redirects=redirect)
     except Exception as e:
-        if 'curl' not in url:
-            allert += f"URL: {url} has problem: {e}\n"
-            return allert, change_counter
+        allert += f"URL: {url} has problem: {e}\n"
+        return allert, change_counter
 
     status_code = response.status_code
     if status_code != 200:

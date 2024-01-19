@@ -133,4 +133,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+test.py
+test1.py
+test2.py
+test3.py
+test4.py
 # webscrup_manual.py
