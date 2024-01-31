@@ -53,13 +53,14 @@ def main():
         if method == "get":
             response = requests.get(url)
         elif method in ["put", "post", "delete"]:
-            data_type = input("Введите тип передаваемой информации (body или json): ")
-            data = json.loads(input(data_type + ": "))
-            
-            if data_type == "body":
-                response = requests.request(method, url, data=data)
+            data_type = input("Введи тип передаваемой информации (data или json): ")
+            data = json.loads(input("Введи " + data_type + ' в {} 1-й строкой, ключи в "": '))
+            headers_text = json.loads(input('Введи headers в {} 1-й строкой, ключи в "", начиная с "host": '))
+
+            if data_type == "data":
+                response = requests.request(method, url, data=data, headers=headers_text)
             elif data_type == "json":
-                response = requests.request(method, url, json=data)
+                response = requests.request(method, url, json=data, headers=headers_text)
 
         print(response.status_code)
 
