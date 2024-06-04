@@ -54,18 +54,20 @@ def make_request_from_curl_obj(context):
     headers = context.headers
     cookies = context.cookies
     auth = context.auth
-    proxies = None
-    if 'proxies' in context:
-        proxies = context.proxies
+    proxies = context.proxies if 'proxies' in context else None
 
-    # Сделать запрос
-    if method.upper() == 'GET':
-        response = requests.get(url, headers=headers, cookies=cookies, auth=auth, proxies=proxies)
-    elif method.upper() == 'POST':
-        response = requests.post(url, data=data, headers=headers, cookies=cookies, auth=auth, proxies=proxies)
-    else:
-        raise ValueError(f'Метод {method} не поддерживается')
-    return response
+    try:
+        # Сделать запрос
+        if method.upper() == 'GET':
+            response = requests.get(url, headers=headers, cookies=cookies, auth=auth, proxies=proxies, timeout=10)
+        elif method.upper() == 'POST':
+            response = requests.post(url, data=data, headers=headers, cookies=cookies, auth=auth, proxies=proxies, timeout=10)
+        else:
+            raise ValueError(f'Метод {method} не поддерживается')
+        return response
+    
+    except Exception as e:
+        return e
 
 
 def search_string(
@@ -120,9 +122,10 @@ def check_url(url_data):
                 headers=headers,
                 allow_redirects=redirect,
                 data=data,
+                timeout=10
             )
         else:
-            response = requests.get(url, headers=headers, allow_redirects=redirect)
+            response = requests.get(url, headers=headers, allow_redirects=redirect, timeout=10)
     except Exception as e:
         allert += f"URL: {url} has problem: {e}\n"
         return allert, change_counter
