@@ -217,6 +217,6 @@ def message_router(allert, change_counter):
 if __name__ == "__main__":
     urls_data = google_sheet_get_data(SPREADSHEET_ID, GOOGLE_CREDENTIALS_VAL)
     if urls_data is False:
-        message_router("Проблема с парсингом БД", 1)
+        message_router("The problem with DATABASE parsing", 1)
     else:
         check_data(urls_data)
