@@ -60,10 +60,8 @@ def make_request_from_curl_obj(context):
         # Сделать запрос
         if method.upper() == 'GET':
             response = requests.get(url, headers=headers, cookies=cookies, auth=auth, proxies=proxies, timeout=10)
-        elif method.upper() == 'POST':
-            response = requests.post(url, data=data, headers=headers, cookies=cookies, auth=auth, proxies=proxies, timeout=10)
         else:
-            raise ValueError(f'Метод {method} не поддерживается')
+            response = requests.post(method=method, url=url, data=data, headers=headers, cookies=cookies, auth=auth, proxies=proxies, timeout=10)
         return response
     
     except Exception as e:
@@ -110,7 +108,7 @@ def check_url(url_data):
         if 'curl' in url:
             context = uncurl.parse_context(url)
             response = make_request_from_curl_obj(context)
-        if "rutracker" in url:
+        elif "rutracker" in url:
             data = {
                 "redirect": url[28:].replace("/", ""),
                 "login_username": RUTRACKER_LOGIN_USERNAME,
