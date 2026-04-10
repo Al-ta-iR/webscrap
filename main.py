@@ -47,25 +47,29 @@ else:
 
 
 def make_request_from_curl_obj(context):
-    # Распаковать объект запроса
-    method = context.method
-    url = context.url
-    data = context.data
-    headers = context.headers
-    cookies = context.cookies
-    auth = context.auth
-    proxies = context.proxies if 'proxies' in context else None
-
     try:
-        # Сделать запрос
-        if method.upper() == 'GET':
-            response = requests.get(url, headers=headers, cookies=cookies, auth=auth, proxies=proxies, timeout=10)
+        if context.method.upper() == 'GET':
+            return requests.get(
+                context.url,
+                headers=context.headers,
+                cookies=context.cookies,
+                auth=context.auth,
+                proxies=getattr(context, 'proxies', None),
+                timeout=10
+            )
         else:
-            response = requests.post(method=method, url=url, data=data, headers=headers, cookies=cookies, auth=auth, proxies=proxies, timeout=10)
-        return response
-    
+            return requests.post(
+                context.url,
+                data=context.data,
+                headers=context.headers,
+                cookies=context.cookies,
+                auth=context.auth,
+                proxies=getattr(context, 'proxies', None),
+                timeout=10
+            )
     except Exception as e:
-        return e
+        print(f"Ошибка при запросе {context.url}: {e}")
+        return None
 
 
 def search_string(
@@ -127,6 +131,10 @@ def check_url(url_data):
     except Exception as e:
         allert += f"URL: {url} has problem: {e}\n"
         return allert, change_counter
+
+    if response is None:
+    allert += f"URL: {url} has problem (no response)\n"
+    return allert, change_counter
 
     status_code = response.status_code
     if status_code != 200:
