@@ -133,8 +133,8 @@ def check_url(url_data):
         return allert, change_counter
 
     if response is None:
-    allert += f"URL: {url} has problem (no response)\n"
-    return allert, change_counter
+        allert += f"URL: {url} has problem (no response)\n"
+        return allert, change_counter
 
     status_code = response.status_code
     if status_code != 200:
